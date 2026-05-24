@@ -50,7 +50,7 @@ impl<'a> ListCmd<'a> {
                 if let Some(arg) = args.get(0) {
                     if let Some(code) = arg.to_str() {
                         let Ok(exit_code) = code.parse::<i32>() else {
-                            eprintln!("exit: {}: numeric argument required", code);
+                            eprintln!("my-shell: exit: {}: numeric argument required", code);
                             return;
                         };
                         exit(exit_code);
@@ -122,7 +122,7 @@ fn main() {
 
     println!("[WELCOME TO MY SHELL]");
     loop {
-        print!(">> ");
+        print!("❯ ");
         io::stdout().flush().unwrap();
 
         let mut input = String::new();
@@ -135,5 +135,6 @@ fn main() {
         let mut list_cmd = ListCmd::new(&input);
         list_cmd.read_input();
         list_cmd.exec_cmds();
+        println!("")
     }
 }
