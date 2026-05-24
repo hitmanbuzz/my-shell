@@ -1,28 +1,28 @@
 use std::{
     ffi::OsStr,
-    io::{self, Write},
+    io::{self, ErrorKind, Write},
     process::{Command, exit},
 };
 
 #[derive(Debug)]
-struct Cmd {
-    main: String,
-    args: Option<Vec<String>>,
+struct Cmd<'a> {
+    main: &'a str,
+    args: Option<Vec<&'a str>>,
 }
 
-impl Cmd {
-    fn new(main: String, args: Option<Vec<String>>) -> Self {
+impl<'a> Cmd<'a> {
+    fn new(main: &'a str, args: Option<Vec<&'a str>>) -> Self {
         Self { main, args }
     }
 }
 
-struct ListCmd {
-    input: String,
-    cmds: Vec<Cmd>,
+struct ListCmd<'a> {
+    input: &'a str,
+    cmds: Vec<Cmd<'a>>,
 }
 
-impl ListCmd {
-    fn new(input: String) -> Self {
+impl<'a> ListCmd<'a> {
+    fn new(input: &'a str) -> Self {
         Self {
             input,
             cmds: Vec::new(),
@@ -35,8 +35,7 @@ impl ListCmd {
             return;
         }
 
-        let cmd_tokens = self.scan_tokens(tokens);
-        self.cmds = cmd_tokens;
+        self.scan_tokens(tokens);
     }
 
     fn exec_cmds(&self) {
@@ -90,29 +89,27 @@ impl ListCmd {
                         }
                     }
                 }
-                Err(e) => println!("failed to exec cmd: {:?} | error: {}", cmd, e),
+                Err(e) => match e.kind() {
+                    ErrorKind::NotFound => eprintln!("my-shell: {}: command not found", cmd.main),
+                    _ => eprintln!("my-shell: command: {} | error: {}", cmd.main, e),
+                },
             }
         }
     }
 
     // private method (if use as a library)
-    fn scan_tokens(&self, tokens: Vec<&str>) -> Vec<Cmd> {
+    fn scan_tokens(&mut self, tokens: Vec<&'a str>) {
         let mut cmd_tokens: Vec<Cmd> = Vec::new();
-        let mut cmd = Cmd::new(tokens[0].to_string(), None);
+        let mut cmd = Cmd::new(tokens[0], None);
 
         if tokens.len() > 1 {
-            let args: Vec<String> = tokens
-                .get(1..)
-                .unwrap()
-                .iter()
-                .map(|a| a.to_string())
-                .collect();
-
-            cmd.args = Some(args);
+            let args: Vec<&str> = tokens.get(1..).unwrap().iter().map(|x| *x).collect();
+            cmd.args = Some(args)
         }
 
         cmd_tokens.push(cmd);
-        return cmd_tokens;
+        self.cmds = cmd_tokens;
+        // return cmd_tokens;
     }
 }
 
@@ -135,7 +132,7 @@ fn main() {
             Err(e) => eprintln!("failed to read input: {}", e),
         }
 
-        let mut list_cmd = ListCmd::new(input);
+        let mut list_cmd = ListCmd::new(&input);
         list_cmd.read_input();
         list_cmd.exec_cmds();
     }
