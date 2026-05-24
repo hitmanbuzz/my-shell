@@ -107,9 +107,8 @@ impl<'a> ListCmd<'a> {
             cmd.args = Some(args)
         }
 
-        cmd_tokens.push(cmd);
+        cmd_tokens.push(cmd); // will use this when multiple commands need to be executed
         self.cmds = cmd_tokens;
-        // return cmd_tokens;
     }
 }
 
