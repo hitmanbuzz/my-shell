@@ -1,8 +1,9 @@
-Support only single command with its respective arguments.
 
-The reason is I just take the first token of the input as the main command and the the rest as its arguments so there is no support for multiple commands as of right now.
+https://github.com/user-attachments/assets/09ff4079-4e3c-4ec1-8b46-4d10c7d60ce2
+Support multiple command with its respective arguments + tty apps support
+
 
 There is some stuttering in the recording because I compressed it too small (20mb -> 500KB) because github allow <=10 MB
 
 
-https://github.com/user-attachments/assets/1bb74008-a872-438e-8ea8-9632ec0e444a
+Uploading my_shell_multiple_commands.mp4…
